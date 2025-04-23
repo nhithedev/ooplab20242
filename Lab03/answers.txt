@@ -1,0 +1,38 @@
+Questions:
+
+1. (In part 15) When overriding the equals() method of the Object class, you will have to cast the Object 
+parameter obj to the type of Object that you are dealing with. For example, in the Media class, 
+you must cast the Object obj to a Media, and then check the equality of the two objects’ attributes 
+as the above requirements (i.e. title for Media; title and length for Track). If the 
+passing object is not an instance of Media, what happens?
+
+- Without proper type checking: If you directly cast the Object obj parameter without checking its type, and it's not a Media instance, you'll get a ClassCastException.
+
+- With proper type checking: The standard pattern includes an instanceof check before casting, which prevents the exception.
+
+---------------------------------------------------------------------------------------------------------------------------
+
+2. (In part 17) Alternatively, to compare items in the cart, instead of using the Comparator class I have mentioned, you can use the Comparable interface and override the compareTo()method. You can refer to the Java docs to see the information of this interface.  
+Suppose we are taking this Comparable interface approach.  
+- What class should implement the Comparable interface? 
+- In those classes, how should you implement the compareTo()method to reflect the ordering that we want? 
+- Can we have two ordering rules of the item (by title then cost and by cost then title) if we use this Comparable interface approach? 
+- Suppose the DVDs have a different ordering rule from the other media types, that is by title, then decreasing length, then cost. How would you modify your code to allow this? 
+
+- Media class (the superclass) should implement Comparable<Media> to define a default natural ordering for all media types (DVDs, CDs, Books).
+- Example of implementation: in Media class: @Override
+    public int compareTo(Media other) {
+        // 1. Compare titles (case-insensitive)
+        int titleCompare = this.getTitle().compareToIgnoreCase(other.getTitle());
+        if (titleCompare != 0) {
+            return titleCompare;
+        }
+        // 2. If titles are equal, sort by cost (higher first)
+        return Float.compare(other.getCost(), this.getCost());
+    }
+and use it in Collections.sort(mediaList); // Uses Media's compareTo()
+- No, comparable defines only one default ordering (natural order).
+- To implement different sorting rules for DVDs (title → length (descending) → cost) while keeping other media (title → cost), we need to:
+	+ Keep Media's default Comparable (title → cost)
+	+ Override compareTo() in DigitalVideoDisc for DVD-specific sorting
+	+ Use Comparator for alternative sorting (e.g., cost → title)
